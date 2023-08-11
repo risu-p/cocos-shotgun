@@ -13,6 +13,7 @@ import {
   NodeEventType,
   screen,
   view,
+  AudioSource,
 } from "cc";
 const { ccclass, property } = _decorator;
 
@@ -58,6 +59,11 @@ export class pointerListener extends Component {
   onMouseUp(event: EventMouse) {
     const pos = event.getUILocation();
     const targetPos = new Vec3(pos.x, pos.y);
+
+    // 音效
+    const audio = this.node.getComponent(AudioSource);
+    audio.volume = 0.2;
+    audio.play();
 
     // 创建节点
     const explosionNode = instantiate(this.explosion);

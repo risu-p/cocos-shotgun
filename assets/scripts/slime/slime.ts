@@ -11,6 +11,7 @@ import {
   screen,
   view,
   Event,
+  AudioSource,
 } from "cc";
 const { ccclass, property } = _decorator;
 
@@ -60,6 +61,11 @@ export class slime extends Component {
   /* 命中：杀死史莱姆 */
   killSlime() {
     if (this.dead == false) {
+      // 音效
+      const audio = this.node.getComponent(AudioSource);
+      audio.volume = 1;
+      audio.play();
+
       this.dead = true;
       this.anime.crossFade("slime-die"); // 切换成死亡动画
       this.node.dispatchEvent(new Event("slime-die", true)); // 发出事件

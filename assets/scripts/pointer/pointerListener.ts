@@ -35,6 +35,10 @@ export class pointerListener extends Component {
   start() {
     this.node.on(NodeEventType.MOUSE_MOVE, this.onMouseMove, this, true); // 捕获阶段
     this.node.on(NodeEventType.MOUSE_UP, this.onMouseUp, this, true);
+
+    // 隐藏鼠标
+    let gcs = document.getElementById("GameCanvas");
+    gcs && (gcs.style.cursor = "none");
   }
 
   /* 鼠标移动：指针图跟着动 */

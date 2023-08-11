@@ -7,7 +7,6 @@ import {
   Node,
   Prefab,
 } from "cc";
-import { slime } from "./slime";
 const { ccclass, property } = _decorator;
 
 enum GAME_STATE {
@@ -16,7 +15,7 @@ enum GAME_STATE {
   END = "end",
 }
 
-// 30s一局
+// 一局时长
 const TOTAL_TIME = 60;
 
 @ccclass("gameManager")
@@ -33,9 +32,12 @@ export class gameManager extends Component {
   /* 倒计时节点 */
   @property(Label)
   time: Label = null;
-  /* 倒计时节点 */
+  /* 画布（为了监听子元素史莱姆抛出的事件） */
   @property(Canvas)
   canvas: Canvas = null;
+  /* 菜单节点 */
+  @property(Node)
+  menu: Node = null;
 
   // 游戏状态
   gameState: GAME_STATE = GAME_STATE.INIT;
@@ -44,14 +46,24 @@ export class gameManager extends Component {
   gameScore: number = 0; // 得分
 
   start() {
-    // 目前还没有开始前的UI菜单，直接开始游戏
-    this.play();
+    this.init(); // 进入游戏菜单
     this.canvas.node.on("slime-die", this.addScore, this);
+  }
+
+  /* 初始化菜单 */
+  init() {
+    this.gameState = GAME_STATE.INIT;
   }
 
   /* 开始游戏 */
   play() {
     this.gameState = GAME_STATE.PLAY;
+    // 隐藏菜单
+    this.menu.active = false;
+
+    // 重置游戏状态
+    this.gameTime = 0;
+    this.gameScore = 0;
 
     // 不断生成史莱姆
     this.schedule(function () {
@@ -72,14 +84,13 @@ export class gameManager extends Component {
 
   /* 更新得分（外部调用） */
   addScore() {
-    console.log("加分");
     this.gameScore += 1;
     this.score.string = this.gameScore.toString();
   }
 
   update(deltaTime: number) {
     if (this.gameState == GAME_STATE.PLAY) {
-      // 进行中，累r积时间
+      // 进行中，累积时间
       this.gameTime += deltaTime;
       this.time.string = Math.max(
         0,

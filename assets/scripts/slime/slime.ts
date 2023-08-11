@@ -54,16 +54,15 @@ export class slime extends Component {
 
   start() {
     this.anime = this.node.getComponent(Animation);
-    this.node.on(NodeEventType.MOUSE_UP, this.onClick, this);
     this.anime.on(Animation.EventType.FINISHED, this.onAnimeEnd, this);
   }
 
-  /* 命中：切换成死亡动画 */
-  onClick() {
+  /* 命中：杀死史莱姆 */
+  killSlime() {
     if (this.dead == false) {
       this.dead = true;
-      this.anime.crossFade("slime-die");
-      this.node.dispatchEvent(new Event("slime-die", true));
+      this.anime.crossFade("slime-die"); // 切换成死亡动画
+      this.node.dispatchEvent(new Event("slime-die", true)); // 发出事件
     }
   }
 

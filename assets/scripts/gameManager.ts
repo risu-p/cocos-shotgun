@@ -32,9 +32,6 @@ export class gameManager extends Component {
   /* 倒计时节点 */
   @property(Label)
   time: Label = null;
-  /* 画布（为了监听子元素史莱姆抛出的事件） */
-  @property(Canvas)
-  canvas: Canvas = null;
   /* 菜单节点 */
   @property(Node)
   menu: Node = null;
@@ -47,36 +44,43 @@ export class gameManager extends Component {
 
   start() {
     this.init(); // 进入游戏菜单
-    this.canvas.node.on("slime-die", this.addScore, this);
+    this.slimeLayer.on("slime-die", this.addScore, this);
   }
 
-  /* 初始化菜单 */
+  /**
+   * 初始化菜单
+   */
   init() {
     this.gameState = GAME_STATE.INIT;
   }
 
-  /* 开始游戏 */
+  /**
+   * 开始游戏
+   */
   play() {
     this.gameState = GAME_STATE.PLAY;
     // 隐藏菜单
     this.menu.active = false;
-
-    // 重置游戏状态
+    // 重置游戏数据
     this.gameTime = 0;
     this.gameScore = 0;
+    this.score.string = (0).toString();
 
     // 不断生成史莱姆
-    this.schedule(function () {
-      // 一次生成多少只（随时间变多）
-      const count = Math.min(Math.max(1, this.gameTime / 10), 5);
-
-      for (let i = 0; i < count; i++) {
-        this.generateSlime();
-      }
-    }, 1);
+    this.schedule(this.generateSlimeSchedule, 1);
   }
 
-  /* 生成史莱姆 */
+  /* 计时器中的逻辑：随时间提升难度 */
+  generateSlimeSchedule() {
+    // 一次生成多少只（随时间变多）
+    const count = Math.min(Math.max(1, this.gameTime / 10), 5);
+
+    for (let i = 0; i < count; i++) {
+      this.generateSlime();
+    }
+  }
+
+  /* 生成单个史莱姆 */
   generateSlime() {
     const slimeNode = instantiate(this.slime);
     this.slimeLayer.addChild(slimeNode);
@@ -88,6 +92,18 @@ export class gameManager extends Component {
     this.score.string = this.gameScore.toString();
   }
 
+  /**
+   * 游戏结束
+   */
+  end() {
+    this.gameState = GAME_STATE.END;
+    this.unschedule(this.generateSlimeSchedule); // 不再生成
+    this.menu.active = true; // 显示菜单
+
+    // 移除所有史莱姆
+    this.slimeLayer.removeAllChildren();
+  }
+
   update(deltaTime: number) {
     if (this.gameState == GAME_STATE.PLAY) {
       // 进行中，累积时间
@@ -96,6 +112,11 @@ export class gameManager extends Component {
         0,
         Math.ceil(TOTAL_TIME - this.gameTime)
       ).toString();
+
+      if (this.gameTime > TOTAL_TIME) {
+        // 游戏结束
+        this.end();
+      }
     }
   }
 }

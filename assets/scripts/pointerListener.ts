@@ -11,6 +11,8 @@ import {
   Prefab,
   instantiate,
   NodeEventType,
+  screen,
+  view,
 } from "cc";
 const { ccclass, property } = _decorator;
 
@@ -21,6 +23,10 @@ const { ccclass, property } = _decorator;
 export class pointerListener extends Component {
   @property(Prefab)
   explosion: Prefab | null = null;
+
+  /* 爆炸效果，挂在特效层下面（否则会出现在指针图之上） */
+  @property(Node)
+  effectLayer: Node | null = null;
 
   /* 指针图 */
   @property(Node)
@@ -51,8 +57,7 @@ export class pointerListener extends Component {
 
     // 创建节点
     const explosionNode = instantiate(this.explosion);
-    // 挂在canvas上
-    this.node.addChild(explosionNode);
+    this.effectLayer.addChild(explosionNode);
     explosionNode.setWorldPosition(targetPos);
   }
 

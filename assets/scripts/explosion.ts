@@ -1,4 +1,4 @@
-import { _decorator, Animation, Component, Node } from "cc";
+import { _decorator, Animation, Component, Node, Vec3 } from "cc";
 const { ccclass, property } = _decorator;
 
 @ccclass("explosion")
